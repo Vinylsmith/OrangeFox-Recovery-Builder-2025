@@ -15,23 +15,23 @@ on:
       DEVICE_TREE:
         description: 'Custom Recovery Tree'
         required: true
-        default: 'https://github.com/abrohim0786/F3GT-twrp-tree.git'
+        default: 'https://github.com/Ubuntuify/device_nothing_asteroids-recovery.git'
       DEVICE_TREE_BRANCH:
         description: 'Custom Recovery Tree Branch'
         required: true
-        default: ''
+        default: 'fox_12.1'
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
-        default: 'device/xiaomi/ares'
+        default: 'device/nothing/Asteroids'
       DEVICE_NAME:
         description: 'Specify your Device Codename.'
         required: true
-        default: 'ares'
+        default: 'Asteroids'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
-        default: 'boot'
+        default: 'recovery'
         type: choice
         options:
         - boot
