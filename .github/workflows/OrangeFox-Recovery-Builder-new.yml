@@ -3,14 +3,6 @@ name: OrangeFox - Build
 on:
   workflow_dispatch:
     inputs:
-      FLAVOR:
-        description: 'Wähle den Build-Typ (twrp oder omni)'
-        required: true
-        default: 'twrp'
-        type: choice
-        options:
-        - twrp
-        - omni
       MANIFEST_BRANCH:
         description: 'OrangeFox Branch'
         required: true
@@ -115,6 +107,14 @@ jobs:
         cd ${{ github.event.inputs.DEVICE_PATH }}
         echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
+    - name: Check Manifest Branch
+      uses: haya14busa/action-cond@v1
+      id: fox_branch
+      with:
+        cond: ${{ github.event.inputs.MANIFEST_BRANCH == '11.0' || github.event.inputs.MANIFEST_BRANCH == '12.1' }}
+        if_true: lunch twrp_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        if_false: lunch omni_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka ${{ github.event.inputs.BUILD_TARGET }}image
+      
     - name: Building OrangeFox
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
@@ -124,7 +124,7 @@ jobs:
         export FOX_VANILLA_BUILD=1
         export OF_MANUAL_ROOT_VENDOR_ERROR_FIX=1
         set -e
-        lunch ${{ github.event.inputs.FLAVOR }}_${{ github.event.inputs.DEVICE_NAME }}-eng && make clean && mka adbd ${{ github.event.inputs.BUILD_TARGET }}image
+        ${{ steps.fox_branch.outputs.value }}
 
     - name: Set Build Date # Output will be use in Release
       run: |
@@ -148,7 +148,7 @@ jobs:
             echo "MD5_IMG=$(md5sum out/target/product/${{ github.event.inputs.DEVICE_NAME }}/target/product/${{ github.event.inputs.DEVICE_NAME }}/OrangeFox*.img | cut -d ' ' -f 1)" >> $GITHUB_ENV
         else
             echo "Recovery out directory is empty."
-            exit 1
+            cd Exit
         fi
 
     - name: Rename the Recovery
@@ -194,3 +194,6 @@ jobs:
           Build: ${{ github.event.inputs.MANIFEST_BRANCH }}
           Device: [Device Tree/Branch](${{ github.event.inputs.DEVICE_TREE }}/tree/${{ github.event.inputs.DEVICE_TREE_BRANCH }})
           Commit: Most recent [commit](${{ github.event.inputs.DEVICE_TREE }}/commit/${{ env.COMMIT_ID }}) during building.
+          
+    - name: Release ramdisk-recovery
+      if: env.CHECK_IMG
