@@ -1,3 +1,4 @@
+
 name: OrangeFox - Build
 
 on:
@@ -31,15 +32,15 @@ on:
       DEVICE_PATH:
         description: 'Specify your device path.'
         required: true
-        default: 'device/xiaomi/ares'
+        default: 'device/ulefone/armorx16pro/'
       DEVICE_NAME:
         description: 'Specify your Device Codename.'
         required: true
-        default: 'ares'
+        default: 'omni_armorx16pro'
       BUILD_TARGET:
         description: 'Specify your Build Target'
         required: true
-        default: 'boot'
+        default: 'vendorboot'
         type: choice
         options:
         - boot
